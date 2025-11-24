@@ -7,5 +7,5 @@ namespace HelloApi.Controllers;
 public class HealthController : ControllerBase
 {
     [HttpGet]
-    public IActionResult Get() => Ok("nok");
+    public IActionResult Get() => Ok("ok");
 }
