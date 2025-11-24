@@ -17,6 +17,36 @@ pipeline {
     stage('Publish') {
       steps { bat 'dotnet publish HelloApi.csproj -c Release -o out' }
     }
+    stage('Deploy to Localhost') {
+  steps {
+    bat '''
+      echo === STOP OLD APP (if running) ===
+      powershell -Command ^
+        "Get-Process dotnet -ErrorAction SilentlyContinue | ^
+         Where-Object { $_.Path -like '*HelloApi.dll*' } | ^
+         Stop-Process -Force -ErrorAction SilentlyContinue"
+
+      echo === COPY NEW BUILD ===
+      if not exist C:\\deploy\\HelloApi mkdir C:\\deploy\\HelloApi
+      xcopy /E /Y /I out\\* C:\\deploy\\HelloApi\\
+
+      echo === START NEW APP ===
+      start "" /B dotnet C:\\deploy\\HelloApi\\HelloApi.dll --urls "http://localhost:5000"
+
+      echo Waiting 5s for app to boot...
+      timeout /t 5 >nul
+    '''
+  }
+}
+
+stage('Smoke Test') {
+  steps {
+    bat '''
+      powershell -Command "Invoke-WebRequest http://localhost:5000/health -UseBasicParsing | Select-Object -Expand Content"
+    '''
+  }
+}
+
 
     stage('Archive Artifact') {
       steps { archiveArtifacts artifacts: 'out/**', fingerprint: true }
