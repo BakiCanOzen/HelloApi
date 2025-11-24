@@ -21,10 +21,8 @@ pipeline {
   steps {
     bat '''
       echo === STOP OLD APP (if running) ===
-      powershell -Command ^
-        "Get-Process dotnet -ErrorAction SilentlyContinue | ^
-         Where-Object { $_.Path -like '*HelloApi.dll*' } | ^
-         Stop-Process -Force -ErrorAction SilentlyContinue"
+      powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+        "Get-Process dotnet -ErrorAction SilentlyContinue | Where-Object { $_.Path -like '*HelloApi.dll*' } | Stop-Process -Force -ErrorAction SilentlyContinue"
 
       echo === COPY NEW BUILD ===
       if not exist C:\\deploy\\HelloApi mkdir C:\\deploy\\HelloApi
@@ -42,11 +40,12 @@ pipeline {
 stage('Smoke Test') {
   steps {
     bat '''
-      powershell -Command "Invoke-WebRequest http://localhost:5000/health -UseBasicParsing | Select-Object -Expand Content"
+      powershell -NoProfile -Command "Invoke-WebRequest http://localhost:5000/health -UseBasicParsing | Select-Object -Expand Content"
     '''
   }
 }
 
+    
 
     stage('Archive Artifact') {
       steps { archiveArtifacts artifacts: 'out/**', fingerprint: true }
