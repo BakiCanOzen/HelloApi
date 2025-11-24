@@ -15,7 +15,7 @@ pipeline {
     }
 
     stage('Publish') {
-      steps { bat 'dotnet publish HelloApi/HelloApi.csproj -c Release -o out' }
+      steps { bat 'dotnet publish HelloApi.csproj -c Release -o out' }
     }
 
     stage('Archive Artifact') {
