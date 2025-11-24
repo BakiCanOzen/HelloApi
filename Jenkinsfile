@@ -3,15 +3,15 @@ pipeline {
 
   stages {
     stage('Restore') {
-      steps { bat 'dotnet restore HelloJenkins.sln' }
+      steps { bat 'dotnet restore HelloApi.sln' }
     }
 
     stage('Build') {
-      steps { bat 'dotnet build HelloJenkins.sln -c Release --no-restore' }
+      steps { bat 'dotnet build HelloApi.sln -c Release --no-restore' }
     }
 
     stage('Test') {
-      steps { bat 'dotnet test HelloJenkins.sln -c Release --no-build' }
+      steps { bat 'dotnet test HelloApi.sln -c Release --no-build' }
     }
 
     stage('Publish') {
@@ -19,9 +19,7 @@ pipeline {
     }
 
     stage('Archive Artifact') {
-      steps {
-        archiveArtifacts artifacts: 'out/**', fingerprint: true
-      }
+      steps { archiveArtifacts artifacts: 'out/**', fingerprint: true }
     }
   }
 }
