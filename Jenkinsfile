@@ -14,9 +14,15 @@ pipeline {
       steps { bat 'dotnet test HelloApi.sln -c Release --no-build' }
     }
 
-    stage('Publish') {
-      steps { bat 'dotnet publish HelloApi.csproj -c Release -o out' }
-    }
+   stage('Publish') {
+  steps {
+    bat '''
+      if exist out rmdir /s /q out
+      dotnet publish HelloApi.csproj -c Release -o out
+    '''
+  }
+}
+
     stage('Deploy to Localhost') {
   steps {
     bat '''
@@ -32,10 +38,11 @@ pipeline {
       start "" /B dotnet C:\\deploy\\HelloApi\\HelloApi.dll --urls "http://localhost:5000"
 
       echo Waiting 5s for app to boot...
-      timeout /t 5 >nul
+      powershell -NoProfile -Command "Start-Sleep -Seconds 5"
     '''
   }
 }
+
 
 stage('Smoke Test') {
   steps {
