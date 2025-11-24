@@ -26,9 +26,11 @@ pipeline {
     stage('Deploy to Localhost') {
   steps {
     bat '''
-      echo === STOP OLD APP (if running) ===
-      powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-        "Get-Process dotnet -ErrorAction SilentlyContinue | Where-Object { $_.Path -like '*HelloApi.dll*' } | Stop-Process -Force -ErrorAction SilentlyContinue"
+      echo === STOP OLD APP by PORT 5000 ===
+      for /f "tokens=5" %%a in ('netstat -ano ^| findstr :5000 ^| findstr LISTENING') do (
+        echo Killing PID %%a
+        taskkill /F /PID %%a >nul 2>&1
+      )
 
       echo === COPY NEW BUILD ===
       if not exist C:\\deploy\\HelloApi mkdir C:\\deploy\\HelloApi
@@ -38,11 +40,11 @@ pipeline {
       set JENKINS_NODE_COOKIE=dontKillMe
       start "" /B dotnet C:\\deploy\\HelloApi\\HelloApi.dll --urls "http://localhost:5000"
 
-      echo Waiting 5s for app to boot...
       powershell -NoProfile -Command "Start-Sleep -Seconds 5"
     '''
   }
 }
+
 
 
 stage('Smoke Test') {
