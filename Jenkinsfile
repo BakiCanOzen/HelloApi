@@ -35,6 +35,7 @@ pipeline {
       xcopy /E /Y /I out\\* C:\\deploy\\HelloApi\\
 
       echo === START NEW APP ===
+      set JENKINS_NODE_COOKIE=dontKillMe
       start "" /B dotnet C:\\deploy\\HelloApi\\HelloApi.dll --urls "http://localhost:5000"
 
       echo Waiting 5s for app to boot...
